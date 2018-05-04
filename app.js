@@ -9,7 +9,6 @@ const app = express();
 app.engine('handlebars', exphbs({defaultLayout: 'layout'}));
 app.set('view engine', 'handlebars');
 
-
 //Index page
 app.get('/', (req, res)=>{
     res.render("Index");
