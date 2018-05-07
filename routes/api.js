@@ -13,16 +13,15 @@ router.get('/About', (req, res)=>{
 
 //get idea
 router.get('/AddIdea', (req, res)=>{
-    res.render("AddIdea");
+    res.render("CreateIdea");
 })
 
 //set idea
-router.post('/AddIdea', (req, res)=>{
-    console.log(req.body);
+router.post('/AddIdea', (req, res)=>{ 
     res.send({
         type: "POST",
-        title: req.body.title,
-        description: req.body.description
+        title:       req.body.idea.title,
+        description: req.body.idea.description
     });
 })
 
