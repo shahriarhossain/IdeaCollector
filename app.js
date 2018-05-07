@@ -1,6 +1,7 @@
 const express = require('express');
 const exphbs  = require('express-handlebars');
 const routes = require('./routes/api');
+const bodyParser = require('body-parser');
 
 const port = 5000;
 
@@ -10,6 +11,9 @@ const app = express();
 //handlebars configuration
 app.engine('handlebars', exphbs({defaultLayout: 'layout'}));
 app.set('view engine', 'handlebars');
+
+//parse data from a request as JSON
+app.use(bodyParser.json());
 
 //use the route
 app.use(routes);
