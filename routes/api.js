@@ -28,24 +28,37 @@ router.get('/ViewIdea/:id', (req, res)=>{
 
 //set idea
 router.post('/AddIdea', (req, res)=>{ 
-    //validation from scratch
+    ////validation from scratch
     // if(req.body.idea.title.length<3) 
     // {
     //     res.status(400).send("Title length must be 4 atleast");
     //     return;
     // }
 
-    //validation with Joi middleware
-    const validationSchema = {
-        title: Joi.string().min(4).required(),
-        description: Joi.string().min(4)
-    };
+    ////validation with Joi middleware
+    // const validationSchema = {
+    //     body:{
+    //         idea:{
+    //             title: Joi.string().min(4).required(),
+    //             description: Joi.string().min(4)
+    //         }     
+    //     }
+    // };
 
-    const validationResult = Joi.validate(req.body.idea, validationSchema);
+    // const validationResult = Joi.validate(req, validationSchema);
   
-    if(validationResult.error)
+    // if(validationResult.error)
+    // {
+    //     res.status(400).send(validationResult.error.details[0].message);
+    //     return;
+    // }
+
+    const {error} = customValidation(req);
+  
+    if(error)
     {
-        res.status(400).send(validationResult.error.details[0].message);
+        res.status(400).send(error.details[0].message);
+        return;
     }
 
     res.send({
@@ -55,4 +68,14 @@ router.post('/AddIdea', (req, res)=>{
     });
 })
 
+function customValidation(req){
+    const validationSchema = {
+        idea:{
+            title: Joi.string().min(4).required(),
+            description: Joi.string().min(4)
+        }     
+    };
+
+    return Joi.validate(req.body, validationSchema);
+}
 module.exports =  router;
