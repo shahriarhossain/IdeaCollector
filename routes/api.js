@@ -16,6 +16,15 @@ router.get('/AddIdea', (req, res)=>{
     res.render("CreateIdea");
 })
 
+//View idea by ID
+//Use route parameter for essential values. /ViewIdea/:id 
+//We could pass multiple parameters too. /ViewIdea/:year/:month
+//Use query string params to indicate additional data/optional values. /ViewIdea/:id?sortBy=popularity   
+router.get('/ViewIdea/:id', (req, res)=>{
+    console.log(req.params.id);   
+    console.log(req.query);  
+})
+
 //set idea
 router.post('/AddIdea', (req, res)=>{ 
     res.send({
