@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const Joi = require('joi');
 
 //Index page
 router.get('/', (req, res)=>{
@@ -28,11 +29,25 @@ router.get('/ViewIdea/:id', (req, res)=>{
 //set idea
 router.post('/AddIdea', (req, res)=>{ 
     //validation from scratch
-    if(req.body.idea.title.length<3) 
+    // if(req.body.idea.title.length<3) 
+    // {
+    //     res.status(400).send("Title length must be 4 atleast");
+    //     return;
+    // }
+
+    //validation with Joi middleware
+    const validationSchema = {
+        title: Joi.string().min(4).required(),
+        description: Joi.string().min(4)
+    };
+
+    const validationResult = Joi.validate(req.body.idea, validationSchema);
+  
+    if(validationResult.error)
     {
-        res.status(400).send("Title length must be 4 atleast");
-        return;
+        res.status(400).send(validationResult.error.details[0].message);
     }
+
     res.send({
         type: "POST",
         title:       req.body.idea.title,
