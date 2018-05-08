@@ -27,6 +27,12 @@ router.get('/ViewIdea/:id', (req, res)=>{
 
 //set idea
 router.post('/AddIdea', (req, res)=>{ 
+    //validation from scratch
+    if(req.body.idea.title.length<3) 
+    {
+        res.status(400).send("Title length must be 4 atleast");
+        return;
+    }
     res.send({
         type: "POST",
         title:       req.body.idea.title,
