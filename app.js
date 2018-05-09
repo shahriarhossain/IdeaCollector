@@ -3,14 +3,32 @@ const exphbs  = require('express-handlebars');
 const routes = require('./routes/api');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const fs = require('fs');
+const path = require('path');
+const expressRequestId = require('express-request-id');
 
 const port = process.env.port || 5000; //you can set environment port from terminal. Type : export PORT =3000
 
 //setup our express app
 const app = express();
 
+//setup express request id
+const addRequestId = expressRequestId();
+
+//Generate UUID for request and add it to X-Request-Id
+app.use(addRequestId);
+
 //Http request logger
-app.use(morgan('dev'));
+morgan.token('id', function getId(req) {
+    return req.id //capture request id
+});
+
+var loggerFormat = ':id :method :url :status :res[content-length] - :response-time ms'; //specify what we want to log
+
+app.use(morgan(loggerFormat, {
+    skip: function (req, res) { return res.statusCode < 400 },  //log only 4xx and 5xx responses
+    stream: fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})   //here flags:'a' stands for append
+  }));
 
 //handlebars configuration
 app.engine('handlebars', exphbs({defaultLayout: 'layout'}));
