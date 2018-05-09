@@ -2,11 +2,15 @@ const express = require('express');
 const exphbs  = require('express-handlebars');
 const routes = require('./routes/api');
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
 
 const port = process.env.port || 5000; //you can set environment port from terminal. Type : export PORT =3000
 
 //setup our express app
 const app = express();
+
+//Http request logger
+app.use(morgan('dev'));
 
 //handlebars configuration
 app.engine('handlebars', exphbs({defaultLayout: 'layout'}));
