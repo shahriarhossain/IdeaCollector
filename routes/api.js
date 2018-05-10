@@ -1,6 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
+const mongoose = require('mongoose');
+
+//connect to MongoDB
+mongoose.connect('mongodb://goforshahriar:<password>@ds014648.mlab.com:14648/ideacollectordb')
+        .then(()=>{
+            console.log("Connected with mongodb");
+        })
+        .catch(err => console.log(err));
+
+//Load Model
+require('../models/Idea');
+const Idea = mongoose.model('Ideas');
 
 //Index page
 router.get('/', (req, res)=>{
@@ -61,11 +73,17 @@ router.post('/AddIdea', (req, res)=>{
         return;
     }
 
-    res.send({
-        type: "POST",
-        title:       req.body.idea.title,
+    //populating the model with data
+    const newIdea = {
+        title: req.body.idea.title,
         description: req.body.idea.description
-    });
+    }
+
+    new Idea(newIdea)
+        .save()
+        .then(idea=>{
+            res.redirect('/about');
+        })
 })
 
 function customValidation(req){
