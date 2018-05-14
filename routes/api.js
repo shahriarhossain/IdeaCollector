@@ -4,7 +4,7 @@ const Joi = require('joi');
 const mongoose = require('mongoose');
 
 //connect to MongoDB
-mongoose.connect('mongodb://goforshahriar:<password>@ds014648.mlab.com:14648/ideacollectordb')
+mongoose.connect('mongodb://goforshahriar:admin123@ds014648.mlab.com:14648/ideacollectordb')
         .then(()=>{
             console.log("Connected with mongodb");
         })
@@ -82,8 +82,19 @@ router.post('/AddIdea', (req, res)=>{
     new Idea(newIdea)
         .save()
         .then(idea=>{
-            res.redirect('/about');
+            res.redirect('/ideas');
         })
+})
+
+router.get('/Ideas', (req, res)=>{
+    //fetch data from db
+    Idea.find({})
+        .sort({createdOn : 'desc'})
+        .then(ideas =>{
+            res.render("Ideas", {
+                ideas : ideas
+            });
+        })   
 })
 
 function customValidation(req){
