@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
 const expressRequestId = require('express-request-id');
+const methodOverride = require('method-override');
 
 const port = process.env.port || 5000; //you can set environment port from terminal. Type : export PORT =3000
 
@@ -51,6 +52,9 @@ app.use(bodyParser.urlencoded({
 
 //parse data from a request as JSON
 app.use(bodyParser.json());
+
+//method override middleware
+app.use(methodOverride('_method'))
 
 //use the route
 app.use(routes);

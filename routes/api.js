@@ -80,7 +80,6 @@ router.route('/AddIdea')
             return;
         }
       
-
           //populating the model with data
           const newIdea = {
               title: req.body.idea.title,
@@ -92,6 +91,34 @@ router.route('/AddIdea')
               .then(idea=>{
                   res.redirect('/ideas');
               })
+      })
+
+router.route('/Ideas/Edit/:id')
+      .get((req, res)=>{
+          Idea.findOne({
+            _id: req.params.id
+            })
+            .then(ideas =>{
+                console.log("Here I am ");
+                res.render("EditIdea", {
+                    idea : ideas
+                });
+            })
+     })
+      .put((req, res)=>{
+        Idea.findOne({
+            _id: req.params.id
+            })
+            .then(idea=>{
+               
+                idea.title = req.body.idea.title,
+                idea.description = req.body.idea.description
+
+                idea.save()
+                    .then(idea=>{
+                        res.redirect('/ideas');
+                    })
+            })
       })
 
 router.get('/Ideas', (req, res)=>{
