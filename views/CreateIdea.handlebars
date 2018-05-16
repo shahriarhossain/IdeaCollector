@@ -1,4 +1,10 @@
 <div class="container">
+{{#each validationError}}
+<div class="alert alert-danger">
+    <p>{{this}}</p>
+</div>
+{{/each}}
+
 <form method="post" action="/AddIdea">
   <div class="form-group row">
     <label for="inputTitle" class="col-sm-2 col-form-label">Title</label>

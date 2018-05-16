@@ -66,13 +66,20 @@ router.route('/AddIdea')
           //     return;
           // }
 
-          const {error} = customValidation(req);
+        const {error} = customValidation(req);
+        let validationError=[];
+        if(error)
+        {
+            validationError.push(error.details[0].message);
+        }
         
-          if(error)
-          {
-              res.status(400).send(error.details[0].message);
-              return;
-          }
+        if(validationError.length>0){
+            res.render('CreateIdea', {
+                validationError: validationError
+            });
+            return;
+        }
+      
 
           //populating the model with data
           const newIdea = {
