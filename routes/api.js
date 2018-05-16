@@ -3,6 +3,8 @@ const router = express.Router();
 const Joi = require('joi');
 const mongoose = require('mongoose');
 
+router.use('/static', express.static('public'))
+
 //connect to MongoDB
 mongoose.connect('mongodb://goforshahriar:admin123@ds014648.mlab.com:14648/ideacollectordb')
         .then(()=>{
