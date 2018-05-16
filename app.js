@@ -31,8 +31,14 @@ app.use(morgan(loggerFormat, {
   }));
 
 //handlebars configuration
-app.engine('handlebars', exphbs({defaultLayout: 'layout'}));
+//extname configuratin only applies on layout and partials. 
+app.engine('handlebars', exphbs({defaultLayout: 'layout', extname: '.hbs'}));
 app.set('view engine', 'handlebars');
+
+//if you do want to change the extension of regular view check https://github.com/ericf/express-handlebars/issues/188
+//Following configuration will look regular file with the extension XXX
+// app.engine('XXX', exphbs({defaultLayout: 'layout', extname: '.hbs'}));
+// app.set('view engine', 'XXX');
 
 
 /** bodyParser.urlencoded(options)
