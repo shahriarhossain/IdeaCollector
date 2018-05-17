@@ -102,13 +102,12 @@ router.route('/Ideas/Edit/:id')
           Idea.findOne({
             _id: req.params.id
             })
-            .then(ideas =>{
-                console.log("Here I am ");
+            .then(ideas =>{        
                 res.render("EditIdea", {
                     idea : ideas
                 });
             })
-     })
+      })
       .put((req, res)=>{
         Idea.findOne({
             _id: req.params.id
@@ -125,6 +124,15 @@ router.route('/Ideas/Edit/:id')
             })
       })
 
+router.get('/Ideas/Delete/:id', (req, res)=>{
+    Idea.findOne({_id: req.params.id})
+        .then(idea=>{
+            idea.remove({ _id: req.params.id})
+                .then(()=>{
+                    res.redirect('/Ideas');
+                })
+        })
+})
 router.get('/Ideas', (req, res)=>{
     //fetch data from db
     Idea.find({})
