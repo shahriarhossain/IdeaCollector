@@ -75,7 +75,11 @@ router.route('/AddIdea')
         
         if(validationError.length>0){
             res.render('CreateIdea', {
-                validationError: validationError
+                validationError: validationError,
+                idea : {
+                    title: req.body.idea.title,
+                    description : req.body.idea.description
+                }
             });
             return;
         }
