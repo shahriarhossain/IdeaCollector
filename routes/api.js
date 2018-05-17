@@ -124,7 +124,7 @@ router.route('/Ideas/Edit/:id')
             })
       })
 
-router.get('/Ideas/Delete/:id', (req, res)=>{
+router.delete('/Ideas/Delete/:id', (req, res)=>{
     Idea.findOne({_id: req.params.id})
         .then(idea=>{
             idea.remove({ _id: req.params.id})

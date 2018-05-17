@@ -4,7 +4,11 @@
             <H1>{{title}}</H1>
             <p>{{description}}</p>
             <a class="btn btn-dark mb-2" href="/Ideas/Edit/{{id}}"><i class="far fa-edit"></i>Edit</a>
-            <a class="btn btn-danger mb-2" href="/Ideas/Delete/{{id}}">Delete</a>
+            <form class="form-group" method="POST" action="/Ideas/Delete/{{id}}?_method=DELETE" >
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit"  class="form-control btn btn-danger  mb-2">DELETE</button>
+            </form>
+            
         </div>
     </div>
 {{else}}
