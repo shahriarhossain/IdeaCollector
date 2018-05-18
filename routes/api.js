@@ -5,8 +5,9 @@ const mongoose = require('mongoose');
 
 router.use('/static', express.static('public'))
 
+const mongoConStr=`mongodb://goforshahriar:${process.env.mLabPw}@ds014648.mlab.com:14648/ideacollectordb`;
 //connect to MongoDB
-mongoose.connect('mongodb://goforshahriar:<password>@ds014648.mlab.com:14648/ideacollectordb')
+mongoose.connect(mongoConStr)
         .then(()=>{
             console.log("Connected with mongodb");
         })
