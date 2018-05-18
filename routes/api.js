@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 router.use('/static', express.static('public'))
 
 //connect to MongoDB
-mongoose.connect('mongodb://goforshahriar:admin123@ds014648.mlab.com:14648/ideacollectordb')
+mongoose.connect('mongodb://goforshahriar:<password>@ds014648.mlab.com:14648/ideacollectordb')
         .then(()=>{
             console.log("Connected with mongodb");
         })
@@ -16,27 +16,15 @@ mongoose.connect('mongodb://goforshahriar:admin123@ds014648.mlab.com:14648/ideac
 require('../models/Idea');
 const Idea = mongoose.model('Ideas');
 
-//Index page
 router.get('/', (req, res)=>{
     res.render("Index");
 })
 
-//About page
 router.get('/About', (req, res)=>{
     res.render("About");
 })
 
-//View idea by ID
-//Use route parameter for essential values. /ViewIdea/:id 
-//We could pass multiple parameters too. /ViewIdea/:year/:month
-//Use query string params to indicate additional data/optional values. /ViewIdea/:id?sortBy=popularity   
-router.get('/ViewIdea/:id', (req, res)=>{
-    console.log(req.params.id);   
-    console.log(req.query);  
-})
-
-//get idea
-router.route('/AddIdea')
+router.route('/Ideas/Add')
       .get((req, res)=>{
         res.render("CreateIdea");
       })
@@ -142,6 +130,14 @@ router.get('/Ideas', (req, res)=>{
                 ideas : ideas
             });
         })   
+})
+//View idea by ID
+//Use route parameter for essential values. /ViewIdea/:id 
+//We could pass multiple parameters too. /ViewIdea/:year/:month
+//Use query string params to indicate additional data/optional values. /ViewIdea/:id?sortBy=popularity   
+router.get('/Ideas/:id', (req, res)=>{
+    console.log(req.params.id);   
+    console.log(req.query);  
 })
 
 function customValidation(req){
