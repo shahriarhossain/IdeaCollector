@@ -14,8 +14,7 @@ mongoose.connect(mongoConStr)
         .catch(err => console.log(err));
 
 //Load Model
-require('../models/Idea');
-const Idea = mongoose.model('Ideas');
+const Idea = require('../models/Idea');
 
 router.get('/', (req, res)=>{
     res.render("Index");
@@ -74,13 +73,12 @@ router.route('/Ideas/Add')
         }
       
           //populating the model with data
-          const newIdea = {
+          const newIdea = new Idea({
               title: req.body.idea.title,
               description: req.body.idea.description
-          }
+          })
 
-          new Idea(newIdea)
-              .save()
+          newIdea.save()
               .then(idea=>{
                   res.redirect('/ideas');
               })
