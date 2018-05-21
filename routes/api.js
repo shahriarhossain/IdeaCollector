@@ -19,14 +19,32 @@ mongoose.connect(mongoConStr)
 const storage = multer.diskStorage({
     destination: 'public/uploads',
     filename: function (req, file, cb) {
-      console.log(file);
       cb(null, file.originalname.split('.')[0] + '-' + Date.now() + path.extname(file.originalname))
     }
-  })
+})
   
 const upload = multer({ 
-    storage: storage
+    storage: storage,
+    limits: {fileSize : 5* 1024 * 1024},
+    fileFilter : (req, file, cb)=>{
+        checkFileType(file, cb);
+    }
 })
+
+//Check File Type
+function checkFileType(file, cb){
+    const supportedType= /jpeg|jpg|png/;
+    const extType = supportedType.test(path.extname(file.originalname).toLowerCase());
+    const mimeType = supportedType.test(file.mimetype);
+
+    if(extType && mimeType){
+        return cb(null, true);
+    }
+    else
+    {
+        return cb('Error: Image Only');
+    }
+}
 
 //Load Model
 const Idea = require('../models/Idea');
@@ -68,7 +86,6 @@ router.route('/Ideas/Add')
           //     res.status(400).send(validationResult.error.details[0].message);
           //     return;
           // }
-
         const {error} = customValidation(req);
         let validationError=[];
         if(error)
