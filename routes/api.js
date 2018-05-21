@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
 const mongoose = require('mongoose');
+const multer  = require('multer');
+const path = require('path');
 
 router.use('/static', express.static('public'))
 
@@ -12,6 +14,19 @@ mongoose.connect(mongoConStr)
             console.log("Connected with mongodb");
         })
         .catch(err => console.log(err));
+
+//Data Storage
+const storage = multer.diskStorage({
+    destination: 'public/uploads',
+    filename: function (req, file, cb) {
+      console.log(file);
+      cb(null, file.originalname.split('.')[0] + '-' + Date.now() + path.extname(file.originalname))
+    }
+  })
+  
+const upload = multer({ 
+    storage: storage
+})
 
 //Load Model
 const Idea = require('../models/Idea');
@@ -28,7 +43,7 @@ router.route('/Ideas/Add')
       .get((req, res)=>{
         res.render("CreateIdea");
       })
-      .post((req, res)=>{ 
+      .post(upload.single('ideaImage'), (req, res)=>{ 
           ////validation from scratch
           // if(req.body.idea.title.length<3) 
           // {
