@@ -29,7 +29,7 @@ const upload = multer({
     fileFilter : (req, file, cb)=>{
         checkFileType(file, cb);
     }
-})
+}).single('ideaImage');
 
 //Check File Type
 function checkFileType(file, cb){
@@ -61,59 +61,42 @@ router.route('/Ideas/Add')
       .get((req, res)=>{
         res.render("CreateIdea");
       })
-      .post(upload.single('ideaImage'), (req, res)=>{ 
-          ////validation from scratch
-          // if(req.body.idea.title.length<3) 
-          // {
-          //     res.status(400).send("Title length must be 4 atleast");
-          //     return;
-          // }
-
-          ////validation with Joi middleware
-          // const validationSchema = {
-          //     body:{
-          //         idea:{
-          //             title: Joi.string().min(4).required(),
-          //             description: Joi.string().min(4)
-          //         }     
-          //     }
-          // };
-
-          // const validationResult = Joi.validate(req, validationSchema);
-        
-          // if(validationResult.error)
-          // {
-          //     res.status(400).send(validationResult.error.details[0].message);
-          //     return;
-          // }
-        const {error} = customValidation(req);
-        let validationError=[];
-        if(error)
-        {
-            validationError.push(error.details[0].message);
-        }
-        
-        if(validationError.length>0){
-            res.render('CreateIdea', {
-                validationError: validationError,
-                idea : {
-                    title: req.body.idea.title,
-                    description : req.body.idea.description
-                }
-            });
-            return;
-        }
-      
-          //populating the model with data
-          const newIdea = new Idea({
-              title: req.body.idea.title,
-              description: req.body.idea.description
-          })
-
-          newIdea.save()
-              .then(idea=>{
-                  res.redirect('/ideas');
-              })
+      .post((req, res)=>{
+        upload(req, res, function (uploadErr) {
+            let validationError=[];
+            if (uploadErr) {
+                validationError.push('An error occurred when uploading');
+            }
+            
+            const {error} = customValidation(req);
+            
+            if(error)
+            {
+                validationError.push(error.details[0].message);
+            }
+            
+            if(validationError.length>0){
+                res.render('CreateIdea', {
+                    validationError: validationError,
+                    idea : {
+                        title: req.body.idea.title,
+                        description : req.body.idea.description
+                    }
+                });
+                return;
+            }
+          
+            //populating the model with data
+            const newIdea = new Idea({
+                title: req.body.idea.title,
+                description: req.body.idea.description
+            })
+    
+            newIdea.save()
+                .then(idea=>{
+                    res.redirect('/ideas');
+                })
+        })
       })
 
 router.route('/Ideas/Edit/:id')
