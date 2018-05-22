@@ -67,6 +67,9 @@ router.route('/Ideas/Add')
             if (uploadErr) {
                 validationError.push('An error occurred when uploading');
             }
+            if(req.file == undefined){
+                validationError.push('Error: No File Selected!')
+            };
             
             const {error} = customValidation(req);
             
@@ -85,13 +88,13 @@ router.route('/Ideas/Add')
                 });
                 return;
             }
-          
+        
             //populating the model with data
             const newIdea = new Idea({
                 title: req.body.idea.title,
                 description: req.body.idea.description
             })
-    
+         
             newIdea.save()
                 .then(idea=>{
                     res.redirect('/ideas');
