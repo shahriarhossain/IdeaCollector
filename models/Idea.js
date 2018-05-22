@@ -10,6 +10,9 @@ const IdeaSchema = new Schema({
         type: String,
         required : true
     },
+    image : {
+        type: String
+    },
     createdOn : {
         type: Date,
         default : Date.now()

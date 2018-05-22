@@ -4,9 +4,11 @@ const Joi = require('joi');
 const mongoose = require('mongoose');
 const multer  = require('multer');
 const path = require('path');
+const uuidv1 = require('uuid/v1');
 
 router.use('/static', express.static('public'))
 
+const imageFileName = uuidv1(); //generate random uuid
 const mongoConStr=`mongodb://goforshahriar:${process.env.mLabPw}@ds014648.mlab.com:14648/ideacollectordb`;
 //connect to MongoDB
 mongoose.connect(mongoConStr)
@@ -19,7 +21,7 @@ mongoose.connect(mongoConStr)
 const storage = multer.diskStorage({
     destination: 'public/uploads',
     filename: function (req, file, cb) {
-      cb(null, file.originalname.split('.')[0] + '-' + Date.now() + path.extname(file.originalname))
+        cb(null, file.originalname.split('.')[0] + '-' + imageFileName + path.extname(file.originalname))
     }
 })
   
@@ -88,11 +90,12 @@ router.route('/Ideas/Add')
                 });
                 return;
             }
-        
+            
             //populating the model with data
             const newIdea = new Idea({
                 title: req.body.idea.title,
-                description: req.body.idea.description
+                description: req.body.idea.description,
+                image: req.file.originalname.split('.')[0] + '-'+ imageFileName + path.extname(req.file.originalname)
             })
          
             newIdea.save()
