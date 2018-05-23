@@ -197,12 +197,13 @@ router.route('/User/Registration')
                 if(err){
                     throw err;
                 }
-                res.redirect('/Login');
+                req.flash('success_message', 'Registration Successful');
+                res.redirect('/User/Login');
             })
 
     })
 
-function customValidation(req){
+    function customValidation(req){
     const validationSchema = {
         idea:{
             title: Joi.string().min(4).required(),
@@ -212,6 +213,11 @@ function customValidation(req){
 
     return Joi.validate(req.body, validationSchema);
 }
+
+router.route('/User/Login')
+    .get((req, res)=>{
+        res.render('Login');
+    })
 
 function regValidation(req){
     const validationSchema = {

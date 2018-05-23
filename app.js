@@ -7,6 +7,9 @@ const fs = require('fs');
 const path = require('path');
 const expressRequestId = require('express-request-id');
 const methodOverride = require('method-override');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const flash = require('connect-flash');
 
 const port = process.env.port || 5000; //you can set environment port from terminal. Type : export PORT =3000
 
@@ -30,6 +33,23 @@ app.use(morgan(loggerFormat, {
     skip: function (req, res) { return res.statusCode < 400 },  //log only 4xx and 5xx responses
     stream: fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})   //here flags:'a' stands for append
   }));
+
+// set sessions, cookie parser and connect-flash
+app.use(cookieParser());
+app.use(session({
+  secret: "mySecretKey", 
+  cookie: { maxAge: 60000 },
+  resave: false,    // forces the session to be saved back to the store
+  saveUninitialized: false  // dont save unmodified
+}));
+app.use(flash());
+
+app.use(function(req, res, next){
+    res.locals.success_message = req.flash('success_message');
+    res.locals.error_message = req.flash('error_message');
+    res.locals.error = req.flash('error');
+    next();
+})
 
 //handlebars configuration
 //extname configuratin only applies on layout and partials. 
