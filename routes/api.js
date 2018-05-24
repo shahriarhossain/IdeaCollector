@@ -163,7 +163,7 @@ router.get('/Ideas/:id', (req, res)=>{
     console.log(req.query);  
 })
 
-router.route('/User/Registration')
+router.route('/User/SignUp')
     .get((req,res)=>{
         res.render('Registration')
     })
@@ -217,6 +217,24 @@ router.route('/User/Registration')
 router.route('/User/Login')
     .get((req, res)=>{
         res.render('Login');
+    })
+    .post((req, res)=>{
+        User.find({email : req.body.email})
+            .exec()
+            .then(singleUser=>{
+                if(singleUser.length>1){
+                    res.status(409); //conflict
+                }
+
+                UserServices.ValidatePassword(singleUser[0].password, req.body.password, (err, isValidPw)=>{
+                    if(isValidPw){
+                        UserServices.GenerateJWT(singleUser[0], (err, token)=>{
+                            console.log(`jwt token is : ${token}`)
+                        })
+                    }
+                })
+            })
+            .catch()
     })
 
 function regValidation(req){

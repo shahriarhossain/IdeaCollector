@@ -1,5 +1,8 @@
 {
     "env":{
-        "mLabPW":"<password>"
+        "mLabPW":"admin123",
+        "sessionSecret:" : "heavySecret",
+        "jwtSecret" : "QxY39skA04lij",
+        "tokenLife" : "2m"
     }
 }
