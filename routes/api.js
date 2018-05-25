@@ -223,7 +223,8 @@ router.route('/User/Login')
             .exec()
             .then(singleUser=>{
                 if(singleUser.length>1){
-                    res.status(409); //conflict
+                    req.flash('error_message', 'Please Contact with the Adminstrator');
+                    res.redirect('/User/Login');
                 }
 
                 UserServices.ValidatePassword(singleUser[0].password, req.body.password, (err, isValidPw)=>{
@@ -235,7 +236,10 @@ router.route('/User/Login')
                     }
                 })
             })
-            .catch()
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({ error: err });
+              });
     })
 
 router.route('/protected')
