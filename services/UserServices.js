@@ -1,4 +1,3 @@
-
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -20,15 +19,5 @@ module.exports.ValidatePassword = function(hash, password, callback){
         if(res != undefined){
             callback(null, res);
         }
-    });
-}
-
-module.exports.GenerateJWT = function(newUser, callback){
-    const user = {
-        name: newUser.name,
-        email: newUser.email
-    }
-    jwt.sign({ user }, process.env.jwtSecret, { expiresIn: process.env.tokenLife }, function(err, token) {
-        callback(err, token);
     });
 }

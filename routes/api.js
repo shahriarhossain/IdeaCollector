@@ -11,6 +11,7 @@ const bcrypt = require('bcryptjs');
 const Idea = require('../models/Idea');
 const User = require('../models/User');
 const UserServices = require('../services/UserServices');
+const AuthChecker = require('../middleware/check-auth');
 
 router.use('/static', express.static('public'))
 
@@ -200,7 +201,6 @@ router.route('/User/SignUp')
                 req.flash('success_message', 'Registration Successful');
                 res.redirect('/User/Login');
             })
-
     })
 
     function customValidation(req){
@@ -228,8 +228,9 @@ router.route('/User/Login')
 
                 UserServices.ValidatePassword(singleUser[0].password, req.body.password, (err, isValidPw)=>{
                     if(isValidPw){
-                        UserServices.GenerateJWT(singleUser[0], (err, token)=>{
-                            console.log(`jwt token is : ${token}`)
+                        AuthChecker.GenerateJWT(singleUser[0], (err, token)=>{
+                            res.cookie('x-access-token', `Bearer ${token}`);
+                            res.redirect('/protected');
                         })
                     }
                 })
@@ -237,6 +238,37 @@ router.route('/User/Login')
             .catch()
     })
 
+router.route('/protected')
+    .get(hasToken, verifyToken, (req, res)=>{
+        res.send('some protected content');
+    })
+
+function hasToken(req, res, next){
+    const bearerToken = req.cookies['x-access-token'];
+    if(typeof bearerToken !=='undefined'){
+        const bearer = bearerToken.split(' ')[1];
+        req.token = bearer;
+        next();
+    }
+    else
+    {
+        req.flash('success_message', 'You are not logged in, please Sign In.');
+        res.redirect('/User/Login');
+    }
+}
+
+function verifyToken(req, res, next){
+    AuthChecker.verifyToken(req, res, (err, tokenObj)=>{
+        if(err){
+            req.flash('success_message', 'You are not logged in, please Sign In.');
+            res.redirect('/User/Login');
+        }
+        else
+        {
+            next();
+        }
+    });
+}
 function regValidation(req){
     const validationSchema = {
         name: Joi.string().min(4).required(),
