@@ -5,6 +5,13 @@ const mongoose = require('mongoose');
 const multer  = require('multer');
 const path = require('path');
 const uuidv1 = require('uuid/v1');
+const bcrypt = require('bcryptjs');
+
+//Load Models and Services
+const Idea = require('../models/Idea');
+const User = require('../models/User');
+const UserServices = require('../services/UserServices');
+const AuthChecker = require('../middleware/check-auth');
 
 router.use('/static', express.static('public'))
 
@@ -47,9 +54,6 @@ function checkFileType(file, cb){
         return cb('Error: Image Only');
     }
 }
-
-//Load Model
-const Idea = require('../models/Idea');
 
 router.get('/', (req, res)=>{
     res.render("Index");
@@ -160,12 +164,120 @@ router.get('/Ideas/:id', (req, res)=>{
     console.log(req.query);  
 })
 
-function customValidation(req){
+router.route('/User/SignUp')
+    .get((req,res)=>{
+        res.render('Registration')
+    })
+    .post((req,res)=>{
+        let validationError=[];
+        const {error} = regValidation(req);
+            
+            if(error)
+            {
+                validationError.push(error.details[0].message);
+            }
+            
+            if(validationError.length>0){
+                res.render('Registration', {
+                    validationError: validationError,
+                    name: req.body.name,
+                    email : req.body.email,
+                    password : req.body.password
+                });
+                return;
+            }
+            
+            //populating the model with data
+            const newUser = new User({
+                name: req.body.name,
+                email : req.body.email,
+                password : req.body.password
+            })
+
+            UserServices.CreateUser(newUser, function(err, user){
+                if(err){
+                    throw err;
+                }
+                req.flash('success_message', 'Registration Successful');
+                res.redirect('/User/Login');
+            })
+    })
+
+    function customValidation(req){
     const validationSchema = {
         idea:{
             title: Joi.string().min(4).required(),
             description: Joi.string().min(4)
         }     
+    };
+
+    return Joi.validate(req.body, validationSchema);
+}
+
+router.route('/User/Login')
+    .get((req, res)=>{
+        res.render('Login');
+    })
+    .post((req, res)=>{
+        User.find({email : req.body.email})
+            .exec()
+            .then(singleUser=>{
+                if(singleUser.length>1){
+                    req.flash('error_message', 'Please Contact with the Adminstrator');
+                    res.redirect('/User/Login');
+                }
+
+                UserServices.ValidatePassword(singleUser[0].password, req.body.password, (err, isValidPw)=>{
+                    if(isValidPw){
+                        AuthChecker.GenerateJWT(singleUser[0], (err, token)=>{
+                            res.cookie('x-access-token', `Bearer ${token}`);
+                            res.redirect('/protected');
+                        })
+                    }
+                })
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({ error: err });
+              });
+    })
+
+router.route('/protected')
+    .get(hasToken, verifyToken, (req, res)=>{
+        res.send('some protected content');
+    })
+
+function hasToken(req, res, next){
+    const bearerToken = req.cookies['x-access-token'];
+    if(typeof bearerToken !=='undefined'){
+        const bearer = bearerToken.split(' ')[1];
+        req.token = bearer;
+        next();
+    }
+    else
+    {
+        req.flash('success_message', 'You are not logged in, please Sign In.');
+        res.redirect('/User/Login');
+    }
+}
+
+function verifyToken(req, res, next){
+    AuthChecker.verifyToken(req, res, (err, tokenObj)=>{
+        if(err){
+            req.flash('success_message', 'You are not logged in, please Sign In.');
+            res.redirect('/User/Login');
+        }
+        else
+        {
+            next();
+        }
+    });
+}
+function regValidation(req){
+    const validationSchema = {
+        name: Joi.string().min(4).required(),
+        email: Joi.string().min(4).required(),
+        password: Joi.string().min(4).required()   
     };
 
     return Joi.validate(req.body, validationSchema);
