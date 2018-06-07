@@ -51,7 +51,6 @@ app.use(function(req, res, next){
     next();
 })
 
-//handlebars configuration
 //extname configuratin only applies on layout and partials. 
 app.engine('handlebars', exphbs({defaultLayout: 'layout', extname: '.hbs'}));
 app.set('view engine', 'handlebars');

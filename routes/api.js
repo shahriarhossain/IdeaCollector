@@ -219,6 +219,7 @@ router.route('/User/Login')
         res.render('Login');
     })
     .post((req, res)=>{
+        const rememberMe = req.body.rememberMeChkbox;
         User.find({email : req.body.email})
             .exec()
             .then(singleUser=>{
@@ -230,6 +231,13 @@ router.route('/User/Login')
                 UserServices.ValidatePassword(singleUser[0].password, req.body.password, (err, isValidPw)=>{
                     if(isValidPw){
                         AuthChecker.GenerateJWT(singleUser[0], (err, token)=>{
+                            if(rememberMe!=='undefined' && rememberMe==='on'){
+                                res.cookie('remFlag', `${rememberMe}`);
+                                AuthChecker.tokenSaver(req.body.email, (err, tokenId)=>{
+                                    res.cookie('rT', `${tokenId}`);
+                                    res.cookie('email', `${req.body.email}`);
+                                });
+                            }
                             res.cookie('x-access-token', `Bearer ${token}`);
                             res.redirect('/protected');
                         })
@@ -264,8 +272,39 @@ function hasToken(req, res, next){
 function verifyToken(req, res, next){
     AuthChecker.verifyToken(req, res, (err, tokenObj)=>{
         if(err){
-            req.flash('success_message', 'You are not logged in, please Sign In.');
-            res.redirect('/User/Login');
+            ///token expired + remember Me enabled
+            //token check>regenerate token>
+            if(err.name==='TokenExpiredError' || err.message==='jwt expired')
+            {
+                const rememberMeStatus = req.cookies['remFlag'];
+                const refreshToekn = req.cookies['rT'];
+                const email = req.cookies['email'];
+
+                console.log(`remFlag : ${rememberMeStatus} rt: ${refreshToekn} email: ${email}`)
+
+                if(typeof rememberMeStatus !=='undefined' && typeof refreshToekn !=='undefined' && typeof email !=='undefined'){          
+                    const user = { email }
+                    AuthChecker.tokenTracker(refreshToekn, user, (err, token)=>{
+                        if(err){
+                            console.log(`AM IN POISON ${err}`);
+                            req.flash('error_message', 'You are not logged in, please Sign In.');
+                            res.redirect('/User/Login');
+                            return;
+                        }
+                        console.log(`New Bearer token ${token}`);
+                        res.cookie('x-access-token', `Bearer ${token}`);
+                        next();
+                    })
+                }
+                else {
+                    req.flash('error_message', 'You are not logged in, please Sign In.');
+                    res.redirect('/User/Login');
+                } 
+            }
+            else {
+                req.flash('error_message', 'You are not logged in, please Sign In.');
+                res.redirect('/User/Login');
+            } 
         }
         else
         {
