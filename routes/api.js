@@ -287,6 +287,9 @@ function verifyToken(req, res, next){
                     AuthChecker.tokenTracker(refreshToekn, user, (err, token)=>{
                         if(err){
                             console.log(`AM IN POISON ${err}`);
+                            req.flash('error_message', 'You are not logged in, please Sign In.');
+                            res.redirect('/User/Login');
+                            return;
                         }
                         console.log(`New Bearer token ${token}`);
                         res.cookie('x-access-token', `Bearer ${token}`);
